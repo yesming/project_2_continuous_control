@@ -1,4 +1,5 @@
 # This code is inspired by udacity (ddpg)
+# modified by Eunmin Hwang
 
 # setup the package
 import numpy as np
@@ -26,7 +27,7 @@ device = torch.device("cpu")
 class Agent():
     """Interacts with and learns from the environment."""
     
-    def __init__(self, state_size, action_size, random_seed):
+    def __init__(self, state_size, action_size, random_seed, n_agent):
         """Initialize an Agent object.
         
         Params
@@ -34,10 +35,12 @@ class Agent():
             state_size (int): dimension of each state
             action_size (int): dimension of each action
             random_seed (int): random seed
+            n_agent (int): number of agents (multi-agent learning)
         """
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
+        self.n_agent = n_agent
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size, random_seed).to(device)
@@ -50,15 +53,16 @@ class Agent():
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
 
         # Noise process
-        self.noise = OUNoise(action_size, random_seed)
+        self.noise = OUNoise((n_agent, action_size), random_seed)
 
         # Replay memory
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
     
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
-        # Save experience / reward
-        self.memory.add(state, action, reward, next_state, done)
+        # Save experience / reward for each agents
+        for i in range(self.n_agent):
+            self.memory.add(state[i,:], action[i,:], reward[i], next_state[i,:], done[i])
 
         # Learn, if enough samples are available in memory
         if len(self.memory) > BATCH_SIZE:
@@ -68,9 +72,11 @@ class Agent():
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
         state = torch.from_numpy(state).float().to(device)
+        action = np.zeros((self.n_agent, self.action_size))
         self.actor_local.eval()
         with torch.no_grad():
-            action = self.actor_local(state).cpu().data.numpy()
+            for n, i_state in enumerate(state):
+                action[n,:] = self.actor_local(i_state).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
             action += self.noise.sample()
@@ -138,6 +144,7 @@ class OUNoise:
 
     def __init__(self, size, seed, mu=0., theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
+        self.size = size
         self.mu = mu * np.ones(size)
         self.theta = theta
         self.sigma = sigma
@@ -151,7 +158,10 @@ class OUNoise:
     def sample(self):
         """Update internal state and return it as a noise sample."""
         x = self.state
-        dx = self.theta * (self.mu - x) + self.sigma * np.array([random.random() for i in range(len(x))])
+        # For the robot arm, the random variable should have positive and negative value at the same time.
+        # Note that we need normal distribution random number
+        dx = self.theta * (self.mu - x) + self.sigma * np.random.normal(0,1,self.size)
+        # dx = self.theta * (self.mu - x) + self.sigma * np.array([random.random() for i in range(len(x))])
         self.state = x + dx
         return self.state
 
