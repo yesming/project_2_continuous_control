@@ -1,7 +1,6 @@
-# project 1 : Continuous Control
+# project 2 : Mutli-Agent Continuous Control
 This repo deal with a second deep reinforcement learing project of udacity.
 In the project, I will implement a multi agent learning.
-The purpose of this project is 
 
 **Note : The version of pytorch is 1.4.0. The original version from udacity is 0.4.0. Due to the version of numpy, I upgraded the version of pytorch.**
 
@@ -18,7 +17,7 @@ This project is supposed that you have anaconda.
    ```bash
    mkdir project_1
    cd project_1
-   git clone https://github.com/yesming/project_1_navigation.git
+   git clone https://github.com/yesming/project_2_continuous_control.git
    ```
 Now you can see the repository 'project_1_navigation'.
 
