@@ -63,6 +63,8 @@ The agents cannot maintain the goal position at all.
 
 However, in the second video(.gif) which is the final phase of the learning, they can stay in the goal position. 
 
+The average scores is over +30. 
+
 <br/>
 
 Video of the early phase :
