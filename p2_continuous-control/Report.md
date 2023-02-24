@@ -13,6 +13,7 @@
   - [Learning Algorithm](#learning-algorithm)
   - [Hyper parameter](#hyper-parameter)
   - [Result](#result)
+  - [Future work](#future-work)
 
 ## Environment
 In this project,  a double-jointed arm can move to target location. A reward of +0.1 is provided for each step that the agent's hand is in the goal location.
@@ -94,3 +95,9 @@ According to the below figure and video, the learning is sucess (The average sco
 
 ![Result](../output.png)
 ![Result_video](../final_phase.gif)
+
+## Future work
+There is so many various method about distribution learning method.
+So, I want to compare their performance.
+
+And I wonder if this policy is valid in the real world too.
